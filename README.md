@@ -51,8 +51,8 @@ For postcode-mapping, update the rules from postcode-mapping/output.xml to [au-p
 
 ### hem-mapping
 
-If the original [HEM_3.19_2022Q4_smoothed.xlsx](/hem-mapping/HEM_3.19_2022Q4_smoothed.xlsx) updated, please do update the [input_hem.xlsx] and re-run `npm run start:hem-mapping` under `hem-mapping` folder to obtain new rules. You can also checkout to [updated_hem.xlsx] to verify the update.
+If the original [HEM_3.19_2022Q4_smoothed.xlsx](/hem-mapping/HEM_3.19_2022Q4_smoothed.xlsx) updated, please do update the [input_hem.xlsx] and re-run `npm run start:hem-mapping` under `hem-mapping` folder to obtain new rules. You can also checkout to [updated_hem.xlsx](/hem-mapping/input_hem.xlsx) to verify the update.
 
 ### postcode-mapping
 
-If the original [CG_POSTCODE_2011_GCCSA_2011](/postcode-mapping/CG_POSTCODE_2011_GCCSA_2011.xls) updated, please do update the [input_au_postcode.xlsx] and re-run `npm run start:postcode-mapping` under `postcode-mapping` folder to obtain new rules. 
+If the original [CG_POSTCODE_2011_GCCSA_2011](/postcode-mapping/CG_POSTCODE_2011_GCCSA_2011.xls) updated, please do update the [input_au_postcode.xlsx](/postcode-mapping/input_au_postcode.xlsx) and re-run `npm run start:postcode-mapping` under `postcode-mapping` folder to obtain new rules. 
