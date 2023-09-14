@@ -1,0 +1,20 @@
+{
+  "name": "stellare-camunda-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:hem-mapping": "node hem-mapping/index.js",
+    "start:postcode-mapping": "node postcode-mapping/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "Stella Ru",
+  "license": "ISC",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "nanoid": "^5.0.1",
+    "xlsx": "^0.18.5"
+  }
+}
