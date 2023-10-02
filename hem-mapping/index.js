@@ -28,11 +28,24 @@ const COMPARISON_OPERATOR_MAPPING = {
   "=": "=",
 };
 
+// To avoid duplicate IDs
+let generatedIds = new Set();
+function uniqueNanoId() {
+  let id;
+  do {
+    id = nanoid(7);
+  } while (generatedIds.has(id));
+  generatedIds.add(id);
+  return id;
+}
+
 const workbook = XLSX.readFile("hem-mapping/input_hem.xlsx");
 const sheetNameList = workbook.SheetNames;
 const originalHEM = XLSX.utils.sheet_to_json(
   workbook.Sheets[sheetNameList[1]]
 );
+
+console.log('originalHEM', originalHEM);
 
 const newHEM = originalHEM
   .map((item) => {
@@ -40,9 +53,9 @@ const newHEM = originalHEM
     const obj = {};
 
     if (situation.includes("Couple")) {
-      obj.relationshipStatus = "partner";
+      obj.relationshipStatus = ["married", "de_facto"];
     } else if (situation.includes("Single")) {
-      obj.relationshipStatus = "single";
+      obj.relationshipStatus = ["single", "divorced", "separated","widowed"];
     }
 
     if (situation.includes("more than 3")) {
@@ -80,8 +93,6 @@ const MID_POINT_OF_UPPER_BAND = 484500;
 
 const outputFilePath = "hem-mapping/output.xml";
 
-console.log(newHEM.slice(0, 5))
-
 const finalResult = getBenchmarkValueForMoreThan3Dependants(newHEM);
 const benchmark = getBenchmarkValueForBeyondTopIncomeBand(finalResult);
 
@@ -97,7 +108,7 @@ function formatNumber(number) {
   if (typeof number === "string") {
     return number.replace(/,/g, "");
   }
-  return number;
+  return number.toFixed(2);
 }
 
 /**
@@ -138,7 +149,7 @@ function getBenchmarkValueForMoreThan3Dependants(result) {
         row[key] = `${
           Math.round(formatNumber(benchmark3dependants[key])) -
           Math.round(formatNumber(benchmark2dependants[key]))
-        }*(numberOfDependants-3) + ${Math.round(
+        }*(user.numberOfDependants-3) + ${Math.round(
           formatNumber(benchmark3dependants[key])
         )}`;
       });
@@ -163,7 +174,7 @@ function getBenchmarkValueForBeyondTopIncomeBand(result) {
       ) {
         return;
       }
-      row[">=606000"] = `(finalAnnualIncome/${formatNumber(
+      row[">=606000"] = `(finalVerifiedIncome*12/${formatNumber(
         MID_POINT_OF_UPPER_BAND
       )})*((${formatNumber(upperMostHEM)})-(${formatNumber(
         secondUpperMostHEM
@@ -203,24 +214,24 @@ function getDecisionTable(result) {
         return;
       }
       return rules.push(`
-       <rule id="DecisionRule_${nanoid(7)}">
-         <inputEntry id="UnaryTests_${nanoid(7)}">
+       <rule id="DecisionRule_${uniqueNanoId()}">
+         <inputEntry id="UnaryTests_${uniqueNanoId()}">
            <text>${mapComparisonOperator(key)}</text>
          </inputEntry>
-         <inputEntry id="UnaryTests_${nanoid(7)}">
+         <inputEntry id="UnaryTests_${uniqueNanoId()}">
            <text>"${AREA_MAPPING[row.area]}"</text>
          </inputEntry>
-         <inputEntry id="UnaryTests_${nanoid(7)}">
-           <text>"${row.relationshipStatus}"</text>
+         <inputEntry id="UnaryTests_${uniqueNanoId()}">
+           <text>"${row.relationshipStatus.map(status => `"${status}"`).join(', ').slice(1, -1)}"</text>
          </inputEntry>
-         <inputEntry id="UnaryTests_${nanoid(7)}">
+         <inputEntry id="UnaryTests_${uniqueNanoId()}">
            <text>${
              row.numberOfDependants === ">3"
                ? row.numberOfDependants.replace(">", "&gt;")
                : row.numberOfDependants
            }</text>
          </inputEntry>
-         <outputEntry id="LiteralExpression_${nanoid(7)}">
+         <outputEntry id="LiteralExpression_${uniqueNanoId()}">
            <text>${
              row.numberOfDependants === ">3" ? row[key] : formatNumber(row[key])
            }</text>
@@ -232,34 +243,34 @@ function getDecisionTable(result) {
 
   // Insert rules into decision table
   const decisionTable = `
-   <decisionTable id="DecisionTable_06kpvxy">
-     <input id="InputClause_0egegar" label="Final annual income">
-       <inputExpression id="LiteralExpression_0pugzmw" typeRef="number">
-         <text>finalVerifiedIncome*12</text>
-       </inputExpression>
-     </input>
-     <input id="InputClause_0hnzzvq" label="Area">
-       <inputExpression id="LiteralExpression_1h9ydsz" typeRef="string">
-         <text>area</text>
-       </inputExpression>
-       <inputValues id="UnaryTests_1brduns">
-         <text>"Sydney","Rest of NSW","Melbourne","Rest of VIC","Brisbane","Rest of QLD","Perth","Rest of WA","Adelaide","Rest of SA","Hobart","Rest of TAS","Darwin","Rest of NT","Canberra","Other Territories"</text>
-       </inputValues>
-     </input>
-     <input id="InputClause_0aobuo4" label="Relationship Status">
-       <inputExpression id="LiteralExpression_136rm4m" typeRef="string">
-         <text>lower case(user.relationshipStatus)</text>
-       </inputExpression>
-       <inputValues id="UnaryTests_0edpfbt">
-         <text>"single","married","de_facto","divorced","separated","widowed"</text>
-       </inputValues>
-     </input>
-     <input id="InputClause_03n0vvq" label="Number of dependants">
-       <inputExpression id="LiteralExpression_1u2hd8x" typeRef="number">
-         <text>user.numberOfDependants</text>
-       </inputExpression>
-     </input>
-     <output id="OutputClause_0zwsw2e" label="Benchmark Value" name="benchmarkValue" typeRef="string" />
+  <decisionTable id="DecisionTable_06kpvxy">
+    <input id="InputClause_0egegar" label="Final annual income">
+      <inputExpression id="LiteralExpression_0pugzmw" typeRef="number">
+        <text>finalVerifiedIncome*12</text>
+      </inputExpression>
+    </input>
+    <input id="InputClause_0hnzzvq" label="Area">
+      <inputExpression id="LiteralExpression_1h9ydsz" typeRef="string">
+        <text>area</text>
+      </inputExpression>
+      <inputValues id="UnaryTests_1brduns">
+        <text>"Sydney","Rest of NSW","Melbourne","Rest of VIC","Brisbane","Rest of QLD","Perth","Rest of WA","Adelaide","Rest of SA","Hobart","Rest of TAS","Darwin","Rest of NT","Canberra","Other Territories"</text>
+      </inputValues>
+    </input>
+    <input id="InputClause_0aobuo4" label="Relationship Status">
+      <inputExpression id="LiteralExpression_136rm4m" typeRef="string">
+        <text>lower case(user.relationshipStatus)</text>
+      </inputExpression>
+      <inputValues id="UnaryTests_0edpfbt">
+        <text>"single","married","de_facto","divorced","separated","widowed"</text>
+      </inputValues>
+    </input>
+    <input id="InputClause_03n0vvq" label="Number of dependants">
+      <inputExpression id="LiteralExpression_1u2hd8x" typeRef="number">
+        <text>user.numberOfDependants</text>
+      </inputExpression>
+    </input>
+    <output id="OutputClause_0zwsw2e" label="Benchmark Value" name="benchmarkValue" typeRef="string" />
      ${rules.join("")}
     </decisionTable>`;
 
@@ -273,3 +284,4 @@ function getDecisionTable(result) {
 }
 
 console.log("File written successfully");
+
