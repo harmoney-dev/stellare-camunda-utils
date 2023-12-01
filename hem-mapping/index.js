@@ -1,6 +1,24 @@
+/**
+ * This script is used to generate the decision table XML for HEM mapping.
+ */
+
 import fs from "fs";
 import XLSX from "xlsx";
 import { nanoid } from "nanoid";
+
+/**
+ * Before executing the script, please update the following values:
+ */
+
+// Find the upper band from the new HEM table and update the UPPER_BAND value before running the script
+const UPPER_BAND = 606000;
+const SECOND_UPPER_BAND = 363000;
+const THIRD_UPPER_BAND = 303000;
+const UPPER_BAND_RANGE = `[${SECOND_UPPER_BAND}..${UPPER_BAND}[`;
+const SECOND_UPPER_BAND_RANGE = `[${THIRD_UPPER_BAND}..${SECOND_UPPER_BAND}[`;
+
+// Calculate the MID_POINT_OF_UPPER_BAND using this formula
+const MID_POINT_OF_UPPER_BAND = (UPPER_BAND + SECOND_UPPER_BAND) / 2;
 
 const AREA_MAPPING = {
   Australia: "Other Territories",
@@ -84,13 +102,6 @@ function createXLSXForNewHEM() {
   XLSX.writeFile(newWorkbook, "updated_hem.xlsx");
 }
 
-// Find the upper band from the HEM table
-const UPPER_BAND = "[363000..606000[";
-const SECOND_UPPER_BAND = "[303000..363000[";
-
-// (606000 + 363000) / 2 = 484500
-const MID_POINT_OF_UPPER_BAND = 484500;
-
 const outputFilePath = "hem-mapping/output.xml";
 
 const finalResult = getBenchmarkValueForMoreThan3Dependants(newHEM);
@@ -161,8 +172,8 @@ function getBenchmarkValueForMoreThan3Dependants(result) {
 
 function getBenchmarkValueForBeyondTopIncomeBand(result) {
   result.forEach((row) => {
-    const upperMostHEM = row[UPPER_BAND];
-    const secondUpperMostHEM = row[SECOND_UPPER_BAND];
+    const upperMostHEM = row[UPPER_BAND_RANGE];
+    const secondUpperMostHEM = row[SECOND_UPPER_BAND_RANGE];
 
     // Calculate benchmark value for beyond Top income band
     // (borrower's income/mid-point of upper band)*(upper most HEM - second upper most HEM) + Second upper most HEM).
@@ -174,7 +185,7 @@ function getBenchmarkValueForBeyondTopIncomeBand(result) {
       ) {
         return;
       }
-      row[">=606000"] = `(finalVerifiedIncome*12/${formatNumber(
+      row[`>=${UPPER_BAND}`] = `(finalVerifiedIncome*12/${formatNumber(
         MID_POINT_OF_UPPER_BAND
       )})*((${formatNumber(upperMostHEM)})-(${formatNumber(
         secondUpperMostHEM
