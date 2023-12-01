@@ -17,7 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 
 ```
-git clone https://github.com/your-username/your-repository.git
+git clone git@github.com:harmoney-dev/stellare-camunda-utils.git
 ```
 
 2.Install the dependencies
@@ -27,13 +27,13 @@ cd stellare-camunda-utils
 npm install
 ```
 
-3. Run the script
+3. Run the script to update hem
 
 ```
 npm run start:hem-mapping 
 ```
 
-or 
+or Run the script to update postcode
 
 ```
 npm run start:postcode-mapping
@@ -52,6 +52,8 @@ For postcode-mapping, update the rules from postcode-mapping/output.xml to [au-p
 ### hem-mapping
 
 If the original [HEM_3.19_2022Q4_smoothed.xlsx](/hem-mapping/HEM_3.19_2022Q4_smoothed.xlsx) updated, please do update the [input_hem.xlsx] and re-run `npm run start:hem-mapping` under `hem-mapping` folder to obtain new rules. You can also checkout to [updated_hem.xlsx](/hem-mapping/input_hem.xlsx) to verify the update.
+
+> Please ensure to update the UPPER_BAND in [index.js](/hem-mapping/index.js) according to the latest HEM table before executing the script.
 
 ### postcode-mapping
 
