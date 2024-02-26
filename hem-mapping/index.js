@@ -11,9 +11,9 @@ import { nanoid } from "nanoid";
  */
 
 // Find the upper band from the new HEM table and update the UPPER_BAND value before running the script
-const UPPER_BAND = 606000;
-const SECOND_UPPER_BAND = 363000;
-const THIRD_UPPER_BAND = 303000;
+const UPPER_BAND = 630000;
+const SECOND_UPPER_BAND = 378000;
+const THIRD_UPPER_BAND = 315000;
 const UPPER_BAND_RANGE = `[${SECOND_UPPER_BAND}..${UPPER_BAND}[`;
 const SECOND_UPPER_BAND_RANGE = `[${THIRD_UPPER_BAND}..${SECOND_UPPER_BAND}[`;
 
@@ -36,6 +36,7 @@ const AREA_MAPPING = {
   "Balance of TAS": "Rest of TAS",
   NT: "Darwin",
   ACT: "Canberra",
+  "Balance of NT": "Rest of NT",
 };
 
 const COMPARISON_OPERATOR_MAPPING = {
@@ -63,7 +64,7 @@ const originalHEM = XLSX.utils.sheet_to_json(
   workbook.Sheets[sheetNameList[1]]
 );
 
-console.log('originalHEM', originalHEM);
+//console.log('originalHEM', originalHEM);
 
 const newHEM = originalHEM
   .map((item) => {
@@ -172,8 +173,10 @@ function getBenchmarkValueForMoreThan3Dependants(result) {
 
 function getBenchmarkValueForBeyondTopIncomeBand(result) {
   result.forEach((row) => {
+    console.log(row)
     const upperMostHEM = row[UPPER_BAND_RANGE];
     const secondUpperMostHEM = row[SECOND_UPPER_BAND_RANGE];
+    console.log(upperMostHEM, secondUpperMostHEM, MID_POINT_OF_UPPER_BAND)
 
     // Calculate benchmark value for beyond Top income band
     // (borrower's income/mid-point of upper band)*(upper most HEM - second upper most HEM) + Second upper most HEM).
@@ -193,7 +196,7 @@ function getBenchmarkValueForBeyondTopIncomeBand(result) {
     });
   });
 
-  console.log(result);
+  //console.log(result);
   return result;
 }
 
